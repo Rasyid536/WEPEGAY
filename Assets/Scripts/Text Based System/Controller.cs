@@ -1,10 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+
+// ============================================= //
+//        This is the script where the game      //
+//      command prompt system is processed       //
+//      and controlled.                          //
+//                                               //
+//  Note : not fully understand this yet.        //
+// ============================================= //
 
 public class Controller : MonoBehaviour
 {
     public static WindowsCommand SEND_DEBUG;
     public List<WindowsCommand> commandList;
+    public float tuning;
 
     string input = "";
 
@@ -33,33 +43,35 @@ public class Controller : MonoBehaviour
         }
     }
 
+    // input handler function
     void HandleInput()
     {
         foreach (WindowsCommand command in commandList)
         {
-            if (input == command.commandID)
+            if (input == command.commandID) // if input data is the same as in the list
             {
-                command.Invoke();
+                command.Invoke(); // call command
             }
         }
 
         input = "";
     }
 
+
     void OnGUI()
     {
         float y = 400;
 
-        //GUI.Box(new Rect(Screen.width / 4, y, Screen.width / 2, 70), "");
-
         GUI.SetNextControlName("ConsoleInput");
 
+        // the text input goes here
         input = GUI.TextField(
-            new Rect(Screen.width / 4 + 5f, y + 18, Screen.width / 2 - 10f, 40),
+            new Rect(Screen.width / 4 + 5f, y + tuning, Screen.width / 2 - 10f , 40),
             input
         );
 
-        if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
+        // input handler call
+        if (Event.current.isKey && Event.current.keyCode == KeyCode.Return) // if iskey and return pressed
         {
             HandleInput();
         }

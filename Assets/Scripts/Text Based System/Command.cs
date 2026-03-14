@@ -1,6 +1,16 @@
 using System;
 using UnityEngine;
 
+// ============================================= //
+//        This is the script where the game      //
+//      command prompt system is processed       //
+//      and controlled.                          //
+//                                               //
+//  Note : not fully understand this yet.        //
+// ============================================= //
+
+
+// encapsulation as far as i know
 public class WindowsCommandBase
 {
     private string _commandID;

@@ -1,5 +1,13 @@
 using UnityEngine;
 
+// ============================================= //
+//        This is the script where the game      //
+//      function that called in the command      //
+//      prompt of the game was called.           //
+//                                               //
+//  Note : not fully understand this yet.        //
+// ============================================= //
+
 public class ControllerEnd : MonoBehaviour
 {
     public static ControllerEnd instance;
