@@ -20,4 +20,9 @@ public class ControllerEnd : MonoBehaviour
     {
         Debug.Log("hbdfjk");
     }
+    public void DebugVal(int x)
+    {
+        Debug.Log ($"Nilai " + x);
+        Debug.Log ("ya");
+    }
 }

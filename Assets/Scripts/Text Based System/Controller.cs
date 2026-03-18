@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 
 // ============================================= //
 //        This is the script where the game      //
@@ -12,7 +13,8 @@ using System.Collections.Generic;
 public class Controller : MonoBehaviour
 {
     public static WindowsCommand SEND_DEBUG;
-    public List<WindowsCommand> commandList;
+    public static WindowsCommand<int> SET_DEBUG;
+    public List<object> commandList;
     [SerializeField]private float yPadding;
 
     string input = "";
@@ -28,11 +30,22 @@ public class Controller : MonoBehaviour
                 ControllerEnd.instance.Debugs();
             });
 
-        commandList = new List<WindowsCommand>
+        SET_DEBUG = new WindowsCommand<int>("set_debug", 
+            "set the value of debug message", 
+            "set_debug<amount>", 
+            (x) =>
+            {
+                ControllerEnd.instance.DebugVal(x);
+            });
+
+        commandList = new List<object>
         {
-            SEND_DEBUG
+            SEND_DEBUG,
+            SET_DEBUG
         };
     }
+
+
 
     void Update()
     {
@@ -42,19 +55,47 @@ public class Controller : MonoBehaviour
         }
     }
 
+
+
     // input handler function
     void HandleInput()
     {
-        foreach (WindowsCommand command in commandList)
+        string[] properties = input.Split(' ');
+
+        if (properties.Length == 0) return;
+
+        for(int i = 0; i < commandList.Count; i++)
         {
-            if (input == command.commandID) // if input data is the same as in the list
+            WindowsCommandBase commandBase = commandList[i] as WindowsCommandBase;
+
+            if (properties[0] == commandBase.commandID)
             {
-                command.Invoke(); // call command
+                if (commandList[i] is WindowsCommand simpleCommand)
+                {
+                    simpleCommand.Invoke();
+                }
+                else if (commandList[i] is WindowsCommand<int> intCommand)
+                {
+                    if (properties.Length < 2)
+                    {
+                        Debug.Log("Butuh angka!");
+                        return;
+                    }
+
+                    if (!int.TryParse(properties[1], out int value))
+                    {
+                        Debug.Log("Format angka salah!");
+                        return;
+                    }
+
+                    intCommand.Invoke(value);
+                }
             }
         }
-
         input = "";
     }
+
+
 
 
     void OnGUI()

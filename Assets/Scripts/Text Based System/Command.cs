@@ -44,3 +44,18 @@ public class WindowsCommand : WindowsCommandBase
         command.Invoke();
     }
 }
+
+public class WindowsCommand<T1> : WindowsCommandBase
+{
+    private Action<T1> command;
+
+    public WindowsCommand(string id, string description, string format, Action<T1> command) : base(id, description, format)
+    {
+        this.command = command;
+    }
+
+    public void Invoke(T1 value)
+    {
+        command.Invoke(value);
+    }
+}
