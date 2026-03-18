@@ -25,6 +25,6 @@ public class GridManager : MonoBehaviour
                 spawwnedTile.Init(isOffset);
             }
         }
-        _cam.transform.position = new Vector3((float)_width / 2 - 0.5f, (float)_height / 2 -05f, -10);
+        _cam.transform.position = new Vector3((float)_width / 2 - 0.5f, (float)_height / 2 - 2.2f, -14.59f);
     }
 }

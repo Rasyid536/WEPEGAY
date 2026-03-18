@@ -5,7 +5,6 @@ using UnityEngine;
 //      function that called in the command      //
 //      prompt of the game was called.           //
 //                                               //
-//  Note : not fully understand this yet.        //
 // ============================================= //
 
 public class ControllerEnd : MonoBehaviour

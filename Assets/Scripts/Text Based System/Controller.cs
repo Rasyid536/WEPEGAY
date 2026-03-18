@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 // ============================================= //
 //        This is the script where the game      //
@@ -14,7 +13,7 @@ public class Controller : MonoBehaviour
 {
     public static WindowsCommand SEND_DEBUG;
     public List<WindowsCommand> commandList;
-    public float tuning;
+    [SerializeField]private float yPadding;
 
     string input = "";
 
@@ -66,7 +65,7 @@ public class Controller : MonoBehaviour
 
         // the text input goes here
         input = GUI.TextField(
-            new Rect(Screen.width / 4 + 5f, y + tuning, Screen.width / 2 - 10f , 40),
+            new Rect(Screen.width / 4 + 5f, y + yPadding , Screen.width / 2 - 10f , 40),
             input
         );
 
