@@ -4,7 +4,6 @@ public class GridManager : MonoBehaviour
 {
     [SerializeField] private int _width, _height;
     [SerializeField] private Tile _tilePrefab;
-    //[SerializeField] private Transform _cam;
     public static GridManager instance;
 
     void Awake()
@@ -19,6 +18,7 @@ public class GridManager : MonoBehaviour
 
     public void GenerateGrid()
     {
+        GlobalVariable.instance.grid = new Tile[_width, _height];
         for(int x = 0; x < _width; x++)
         {
             for(int y = 0; y < _height; y++)
@@ -28,8 +28,8 @@ public class GridManager : MonoBehaviour
 
                 var isOffset = (x + y) % 2 == 1;
                 spawwnedTile.Init(isOffset);
+                GlobalVariable.instance.grid[x, y] = spawwnedTile;
             }
         }
-       // _cam.transform.position = new Vector3((float)_width / 2 - 0.5f, (float)_height / 2 - 2.2f, -16);
     }
 }

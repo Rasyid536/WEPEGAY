@@ -60,15 +60,6 @@ public class WindowsCommand<T1> : WindowsCommandBase
     }
 }
 
-
-
-
-
-
-
-
-
-
 public class WindowsCommand<T1, T2> : WindowsCommandBase
 {
     private Action<T1, T2> command;
@@ -83,5 +74,3 @@ public class WindowsCommand<T1, T2> : WindowsCommandBase
         command.Invoke(val1, val2);
     }
 } 
-
-// ini buat disimpen dulu ygy:D

@@ -44,7 +44,7 @@ public class Controller : MonoBehaviour
 
 
         MSGXY_AT =new WindowsCommand<int, int>(
-            "msgxy_at", 
+            "place_atxy", 
             "send you the x and y", 
             "msgxy_at<value, value>", 
             (x, y) =>
@@ -128,10 +128,8 @@ public class Controller : MonoBehaviour
                 }
             }
         }
-        input = "";
+        input = ""; // set input string to clear
     }
-
-
 
 
     void OnGUI()
