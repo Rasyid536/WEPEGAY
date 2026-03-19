@@ -16,13 +16,17 @@ public class ControllerEnd : MonoBehaviour
         instance = this;
     }
 
+    // debug function 
     public void Debugs()
     {
-        Debug.Log("hbdfjk");
+        Debug.Log("This is called");
     }
     public void DebugVal(int x)
     {
         Debug.Log ($"Nilai " + x);
-        Debug.Log ("ya");
+    }
+    public void SendMSG(int x, int y)
+    {
+        Debug.Log($"Koord {x}, {y}");
     }
 }

@@ -54,8 +54,34 @@ public class WindowsCommand<T1> : WindowsCommandBase
         this.command = command;
     }
 
-    public void Invoke(T1 value)
+    public void Invoke(T1 val)
     {
-        command.Invoke(value);
+        command.Invoke(val);
     }
 }
+
+
+
+
+
+
+
+
+
+
+public class WindowsCommand<T1, T2> : WindowsCommandBase
+{
+    private Action<T1, T2> command;
+
+    public WindowsCommand(string id, string description, string format, Action<T1, T2> command) : base(id, description, format)
+    {
+        this.command = command;
+    }
+
+    public void Invoke(T1 val1, T2 val2)
+    {
+        command.Invoke(val1, val2);
+    }
+} 
+
+// ini buat disimpen dulu ygy:D

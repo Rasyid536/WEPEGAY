@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System;
 
 // ============================================= //
 //        This is the script where the game      //
@@ -14,8 +15,9 @@ public class Controller : MonoBehaviour
 {
     public static WindowsCommand SEND_DEBUG;
     public static WindowsCommand<int> SET_DEBUG;
+    public static WindowsCommand<int, int> MSGXY_AT;
     public List<object> commandList;
-    [SerializeField]private float yPadding;
+    [SerializeField]private float yPadding, xPadding, width;
 
     string input = "";
 
@@ -30,7 +32,9 @@ public class Controller : MonoBehaviour
                 ControllerEnd.instance.Debugs();
             });
 
-        SET_DEBUG = new WindowsCommand<int>("set_debug", 
+
+        SET_DEBUG = new WindowsCommand<int>(
+            "set_debug", 
             "set the value of debug message", 
             "set_debug<amount>", 
             (x) =>
@@ -38,10 +42,22 @@ public class Controller : MonoBehaviour
                 ControllerEnd.instance.DebugVal(x);
             });
 
+
+        MSGXY_AT =new WindowsCommand<int, int>(
+            "msgxy_at", 
+            "send you the x and y", 
+            "msgxy_at<value, value>", 
+            (x, y) =>
+            {
+                ControllerEnd.instance.SendMSG(x, y);
+            });
+
+
         commandList = new List<object>
         {
             SEND_DEBUG,
-            SET_DEBUG
+            SET_DEBUG,
+            MSGXY_AT
         };
     }
 
@@ -70,11 +86,12 @@ public class Controller : MonoBehaviour
 
             if (properties[0] == commandBase.commandID)
             {
-                if (commandList[i] is WindowsCommand simpleCommand)
+                if (commandList[i] is WindowsCommand simpleCommand) // handle only command
                 {
                     simpleCommand.Invoke();
                 }
-                else if (commandList[i] is WindowsCommand<int> intCommand)
+                
+                else if (commandList[i] is WindowsCommand<int> intCommand) // handle one integer input, ex : command value
                 {
                     if (properties.Length < 2)
                     {
@@ -90,6 +107,25 @@ public class Controller : MonoBehaviour
 
                     intCommand.Invoke(value);
                 }
+
+                else if (commandList [i] is WindowsCommand<int, int> intPairCommand) // handle two integer input, ex : command val1 val2
+                {
+                    if (properties.Length < 3)
+                    {
+                        Debug.Log("Butuh angka!");
+                        return;
+                    }
+
+                    if (!int.TryParse(properties[1], out int val1) || 
+                    !int.TryParse(properties[2], out int val2))
+                    {
+                        Debug.Log("Format angka salah!");
+                        return;
+                    }
+                    
+
+                    intPairCommand.Invoke(val1, val2);
+                }
             }
         }
         input = "";
@@ -100,15 +136,15 @@ public class Controller : MonoBehaviour
 
     void OnGUI()
     {
-        float y = 400;
 
         GUI.SetNextControlName("ConsoleInput");
 
         // the text input goes here
         input = GUI.TextField(
-            new Rect(Screen.width / 4 + 5f, y + yPadding , Screen.width / 2 - 10f , 40),
+            new Rect(Screen.width / 2 + xPadding, yPadding, Screen.width / 2 - width , 40),
             input
         );
+        GUI.FocusControl("ConsoleInput");
 
         // input handler call
         if (Event.current.isKey && Event.current.keyCode == KeyCode.Return) // if iskey and return pressed
