@@ -16,13 +16,18 @@ public class Controller : MonoBehaviour
     public static WindowsCommand SEND_DEBUG;
     public static WindowsCommand<int> SET_DEBUG;
     public static WindowsCommand<int, int> MSGXY_AT;
+    public static WindowsCommand<int, int> ERASE_AT;
+
+
     public List<object> commandList;
     [SerializeField]private float yPadding, xPadding, width;
+    GUIStyle style;
 
     string input = "";
 
     void Awake()
     {
+
         SEND_DEBUG = new WindowsCommand(
             "send_debug",
             "Sending message",
@@ -43,25 +48,34 @@ public class Controller : MonoBehaviour
             });
 
 
-        MSGXY_AT =new WindowsCommand<int, int>(
+        MSGXY_AT = new WindowsCommand<int, int>(
             "place_atxy", 
             "send you the x and y", 
             "msgxy_at<value, value>", 
             (x, y) =>
             {
-                ControllerEnd.instance.SendMSG(x, y);
+                ControllerEnd.instance.IsOccupiedGrid(x, y);
             });
+
+        ERASE_AT = new WindowsCommand<int, int>(
+            "erase_atxy", 
+            "erase the object at x and y",
+            "place_at<value, value>",
+            (x, y) =>
+            {
+                ControllerEnd.instance.EraseObject(x, y);
+            });
+        
 
 
         commandList = new List<object>
         {
             SEND_DEBUG,
             SET_DEBUG,
-            MSGXY_AT
+            MSGXY_AT, 
+            ERASE_AT
         };
     }
-
-
 
     void Update()
     {
@@ -135,12 +149,18 @@ public class Controller : MonoBehaviour
     void OnGUI()
     {
 
+        if (style == null)
+        {
+            style = new GUIStyle(GUI.skin.textField);
+            style.fontSize = 20;
+        }
+
         GUI.SetNextControlName("ConsoleInput");
 
         // the text input goes here
         input = GUI.TextField(
             new Rect(Screen.width / 2 + xPadding, yPadding, Screen.width / 2 - width , 40),
-            input
+            input, style
         );
         GUI.FocusControl("ConsoleInput");
 

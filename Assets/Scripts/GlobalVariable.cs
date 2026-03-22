@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using Unity.Collections;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ public class GlobalVariable : MonoBehaviour
 {
     public static GlobalVariable instance;
     public Tile[, ] grid;
+    public bool[, ] isOccuppied;
 
     void Awake()
     {
@@ -15,6 +17,7 @@ public class GlobalVariable : MonoBehaviour
         }
         instance = this;
     }
+
 }
 
 public static class GlobalData

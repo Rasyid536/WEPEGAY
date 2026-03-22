@@ -34,10 +34,43 @@ public class ControllerEnd : MonoBehaviour
         {
             Debug.Log($" Posisi grid ke : {GlobalVariable.instance.grid[x, y].transform.position}, Length of x {GlobalVariable.instance.grid.GetLength(0)}, Length of y {GlobalVariable.instance.grid.GetLength(1)}");
             Instantiate(testObject, GlobalVariable.instance.grid[x, y].transform.position, quaternion.identity);
+            GlobalVariable.instance.isOccuppied[x, y] = true;
         }
         else
         {
             Debug.Log("Indeks diluar array");
         }
+    }
+
+    public void IsOccupiedGrid(int x, int y)
+    {
+        if(GlobalVariable.instance.isOccuppied[x, y] == true)
+        {
+            Debug.Log($"Grid {x}, {y} sudah occupied");
+        }
+        else if(GlobalVariable.instance.isOccuppied[x, y] == false)
+        {
+            SendMSG(x, y);
+        }
+    }
+
+    public void EraseObject(int x, int y)
+    {
+        if(GlobalVariable.instance.isOccuppied[x, y] == true)
+        {
+            Vector3 pos = GlobalVariable.instance.grid[x, y].transform.position;
+
+            foreach (GameObject obj in GameObject.FindObjectsOfType<GameObject>())
+            {
+                if (obj.transform.position == pos)
+                {
+                    Destroy(obj);
+                    GlobalVariable.instance.isOccuppied[x, y] = false;
+                    return;
+                }
+            }
+        }
+
+        Debug.Log("Tidak ada objek ditemukan");
     }
 }
