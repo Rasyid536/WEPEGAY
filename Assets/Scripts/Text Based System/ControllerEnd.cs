@@ -13,6 +13,7 @@ public class ControllerEnd : MonoBehaviour
 {
     public static ControllerEnd instance;
     public GameObject testObject;
+    public GameObject PestKiller;
 
     public void Awake()
     {
@@ -60,7 +61,7 @@ public class ControllerEnd : MonoBehaviour
         {
             Vector3 pos = GlobalVariable.instance.grid[x, y].transform.position;
 
-            foreach (GameObject obj in GameObject.FindObjectsOfType<GameObject>())
+            foreach (GameObject obj in GameObject.FindObjectsOfType<GameObject>()) // obsolete but okay lah
             {
                 if (obj.transform.position == pos)
                 {
@@ -72,5 +73,25 @@ public class ControllerEnd : MonoBehaviour
         }
 
         Debug.Log("Tidak ada objek ditemukan");
+    }
+
+    public void PlacePestKiller(int x, int y)
+    {
+        if(x < GlobalVariable.instance.grid.GetLength(0) && y < GlobalVariable.instance.grid.GetLength(1) && GlobalVariable.instance.isOccuppied[x, y] == false)
+        {
+            Debug.Log($" Posisi grid ke : {GlobalVariable.instance.grid[x, y].transform.position}, Length of x {GlobalVariable.instance.grid.GetLength(0)}, Length of y {GlobalVariable.instance.grid.GetLength(1)}");
+            Instantiate(PestKiller, GlobalVariable.instance.grid[x, y].transform.position, quaternion.identity);
+            GlobalVariable.instance.isOccuppied[x, y] = true;
+        }
+        else
+        {
+            Debug.Log("Indeks diluar array atau tempat occupied");
+        }
+    }
+
+
+    void Update()
+    {
+        
     }
 }

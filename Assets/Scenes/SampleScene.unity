@@ -465,6 +465,7 @@ GameObject:
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
+  - component: {fileID: 519420034}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -602,6 +603,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3c759d90ba6ef947ab1df80dcb6dc59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &519420034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a2b552f9b01a9947bc17e43eac04451, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Pest: {fileID: 317286708357992397, guid: f9fa338d8c4f047479d693332b5d228d, type: 3}
 --- !u!1 &530309052
 GameObject:
   m_ObjectHideFlags: 0
@@ -647,6 +661,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testObject: {fileID: 4711020165936265575, guid: c7bf65e7c7a75e2499beddd289d75919, type: 3}
+  PestKiller: {fileID: 3664107024930742824, guid: 725ff05ae1f49d94ebd3c6958fda5113, type: 3}
 --- !u!1 &868227662
 GameObject:
   m_ObjectHideFlags: 0
@@ -658,7 +673,6 @@ GameObject:
   - component: {fileID: 868227665}
   - component: {fileID: 868227664}
   - component: {fileID: 868227663}
-  - component: {fileID: 868227666}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -727,18 +741,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &868227666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 868227662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3c759d90ba6ef947ab1df80dcb6dc59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -7,23 +7,23 @@ using System;
 //        This is the script where the game      //
 //      command prompt system is processed       //
 //      and controlled.                          //
-//                                               //
-//  Note : not fully understand this yet.        //
 // ============================================= //
 
 public class Controller : MonoBehaviour
 {
+
+    // declare command list variable 
     public static WindowsCommand SEND_DEBUG;
     public static WindowsCommand<int> SET_DEBUG;
-    public static WindowsCommand<int, int> MSGXY_AT;
+    public static WindowsCommand<int, int> PLANT_AT;
     public static WindowsCommand<int, int> ERASE_AT;
+    public static WindowsCommand<int, int> PLACEA_PESTKILL;
+    // declare command list variable
 
 
     public List<object> commandList;
-    [SerializeField]private float yPadding, xPadding, width;
-    GUIStyle style;
-
-    string input = "";
+    [SerializeField]private float yPadding, xPadding, width; // gui margin
+    GUIStyle style; string input = "";
 
     void Awake()
     {
@@ -48,8 +48,8 @@ public class Controller : MonoBehaviour
             });
 
 
-        MSGXY_AT = new WindowsCommand<int, int>(
-            "place_atxy", 
+        PLANT_AT = new WindowsCommand<int, int>(
+            "plant_atxy", 
             "send you the x and y", 
             "msgxy_at<value, value>", 
             (x, y) =>
@@ -65,6 +65,15 @@ public class Controller : MonoBehaviour
             {
                 ControllerEnd.instance.EraseObject(x, y);
             });
+
+        PLACEA_PESTKILL = new WindowsCommand<int, int>(
+            "antipest_atxy",
+            "place the instrument to rid the pest",
+            "placepestkill_atxy <value, value>",
+            (x, y) =>
+            {
+                ControllerEnd.instance.PlacePestKiller(x, y);
+            });
         
 
 
@@ -72,8 +81,9 @@ public class Controller : MonoBehaviour
         {
             SEND_DEBUG,
             SET_DEBUG,
-            MSGXY_AT, 
-            ERASE_AT
+            PLANT_AT, 
+            ERASE_AT,
+            PLACEA_PESTKILL
         };
     }
 
@@ -84,8 +94,6 @@ public class Controller : MonoBehaviour
             HandleInput();
         }
     }
-
-
 
     // input handler function
     void HandleInput()
