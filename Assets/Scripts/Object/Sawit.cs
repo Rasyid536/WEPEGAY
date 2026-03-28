@@ -16,4 +16,10 @@ public class Sawit : MonoBehaviour
         float t = time/duration;
         renderer.material.color = Color.Lerp(Color.white, Color.black, t);
     }
+
+    void OnDestroy()
+    {
+        GlobalData.money += 1;
+        Debug.Log($"duitnya ada : {GlobalData.money}");
+    }
 }

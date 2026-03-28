@@ -63,7 +63,7 @@ public class ControllerEnd : MonoBehaviour
 
             foreach (GameObject obj in GameObject.FindObjectsOfType<GameObject>()) // obsolete but okay lah
             {
-                if (obj.transform.position == pos)
+                if (obj.transform.position == pos && !obj.CompareTag("Pest"))
                 {
                     Destroy(obj);
                     GlobalVariable.instance.isOccuppied[x, y] = false;
