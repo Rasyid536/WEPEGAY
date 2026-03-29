@@ -55,13 +55,13 @@ public class GridManager : MonoBehaviour
     {
         if (GlobalVariable.instance.grid == null) return;
 
-        float offset = 0f;   // biar center tile
-        float outside = 1f;    // jarak keluar grid
+        float offset = 0f;
+        float outside = 1f;
 
         // Label X (bawah grid)
         for (int x = 0; x < width; x++)
         {
-            Vector3 worldPos = new Vector3(x + offset, -outside, 0);
+            Vector3 worldPos = new Vector3(x, -outside, 0);
             DrawLabel(worldPos, x.ToString());
         }
 

@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using Unity.Collections;
 using UnityEngine;
 
@@ -17,7 +16,6 @@ public class GlobalVariable : MonoBehaviour
         }
         instance = this;
     }
-
 }
 
 public static class GlobalData
