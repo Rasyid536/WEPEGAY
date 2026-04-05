@@ -19,8 +19,6 @@ public class GridManager : MonoBehaviour
 
     public void GenerateGrid()
     {
-        
-
         GlobalVariable.instance.grid = new Tile[width, height];
         GlobalVariable.instance.isOccuppied = new bool[width, height];
         for(int x = 0; x < width; x++)

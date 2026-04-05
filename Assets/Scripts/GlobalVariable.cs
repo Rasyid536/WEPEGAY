@@ -20,6 +20,6 @@ public class GlobalVariable : MonoBehaviour
 
 public static class GlobalData
 {
-    public static int money;
+    public static int money = 10;
     public static int data;
 }

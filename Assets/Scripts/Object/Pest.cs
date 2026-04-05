@@ -15,7 +15,6 @@ public class Pest : MonoBehaviour
 
             if (otherPest == null) return;
 
-            // 🔥 hanya satu yang dihancurkan
             if (this.GetInstanceID() > otherPest.GetInstanceID())
             {
                 Destroy(this.gameObject);

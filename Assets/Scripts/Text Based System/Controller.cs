@@ -22,6 +22,9 @@ public class Controller : MonoBehaviour
 
 
     public List<object> commandList;
+    private List<string> terminalLogs;
+    [SerializeField] private int maxLogs;
+    GUIStyle textLogsStyle;
     [SerializeField]private float yPadding, xPadding, width; // gui margin
     GUIStyle style; string input = "";
 
@@ -54,7 +57,11 @@ public class Controller : MonoBehaviour
             "msgxy_at<value, value>", 
             (x, y) =>
             {
-                ControllerEnd.instance.IsOccupiedGrid(x, y);
+                if(GlobalData.money >= 1)
+                {
+                    ControllerEnd.instance.IsOccupiedGrid(x, y);
+                    AddTextLogs("placed");
+                }
             });
 
         ERASE_AT = new WindowsCommand<int, int>(
@@ -72,9 +79,16 @@ public class Controller : MonoBehaviour
             "placepestkill_atxy <value, value>",
             (x, y) =>
             {
-                ControllerEnd.instance.PlacePestKiller(x, y);
+                
+                if(GlobalData.money >= 3)
+                {
+                    ControllerEnd.instance.PlacePestKiller(x, y);
+                    GlobalData.money -= 3;
+                }
+                
             });
         
+        terminalLogs = new List<string>{};
 
 
         commandList = new List<object>
@@ -153,15 +167,57 @@ public class Controller : MonoBehaviour
         input = ""; // set input string to clear
     }
 
+    void AddTextLogs(string message)
+    {
+        terminalLogs.Add(message);
+        if (terminalLogs.Count >= maxLogs)
+        {
+            terminalLogs.RemoveAt(0);
+        }
+    }
+
 
     void OnGUI()
     {
-
         if (style == null)
         {
             style = new GUIStyle(GUI.skin.textField);
             style.fontSize = 20;
         }
+        
+        if (textLogsStyle == null)
+        {
+            textLogsStyle = new GUIStyle(GUI.skin.label);
+            textLogsStyle.fontSize = 20;
+            textLogsStyle.normal.textColor = Color.white;
+        }
+
+
+
+
+
+        //=======================
+
+        float areaWidth = Screen.width / 2 - width;
+        float xPos = Screen.width / 2 + xPadding;
+
+        // 3. Loop untuk menggambar daftar log
+        for (int i = 0; i < terminalLogs.Count; i++)
+        {
+            // Setiap baris turun 25 pixel
+            float yPos = yPadding + (i * 25); 
+            GUI.Label(new Rect(xPos, yPos, areaWidth, 25), terminalLogs[i], textLogsStyle);
+        }
+
+        // 4. Gambar TextField di bawah log (Beri jarak manual)
+        float inputY = yPadding + (maxLogs * 25) + 10;
+        input = GUI.TextField(new Rect(xPos, inputY, areaWidth, 40), input, style);
+
+        //======================================
+
+
+
+
 
         GUI.SetNextControlName("ConsoleInput");
 

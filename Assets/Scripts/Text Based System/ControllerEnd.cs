@@ -88,8 +88,7 @@ public class ControllerEnd : MonoBehaviour
             Debug.Log("Indeks diluar array atau tempat occupied");
         }
     }
-
-
+    
     void Update()
     {
         

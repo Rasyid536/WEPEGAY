@@ -15,6 +15,7 @@ public class Sawit : MonoBehaviour
     void Awake()
     {
         renderer = this.gameObject.GetComponent<SpriteRenderer>();
+        GlobalData.money -= 1;
     }
 
     void Update()
@@ -25,9 +26,9 @@ public class Sawit : MonoBehaviour
 
     void OnDestroy()
     {
-        if(renderer.sprite == sprite && renderer.color == Color.white)
+        if(renderer.sprite == sprite && renderer.material.color == Color.white)
         {
-            GlobalData.money += 1;
+            GlobalData.money += 2;
             Debug.Log($"duitnya ada : {GlobalData.money}");
         }
         else
@@ -35,6 +36,7 @@ public class Sawit : MonoBehaviour
             Debug.Log("Belum panen tapi di harvest");
         }
     }
+
 
     void OnTriggerEnter2D(Collider2D collision)
     {
