@@ -17,6 +17,7 @@ public class Pest : MonoBehaviour
 
             if (this.GetInstanceID() > otherPest.GetInstanceID())
             {
+                Debug.Log("Pest collide");
                 Destroy(this.gameObject);
             }
         }

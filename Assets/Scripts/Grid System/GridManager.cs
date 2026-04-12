@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections;
 
 public class GridManager : MonoBehaviour
 {
@@ -9,15 +9,16 @@ public class GridManager : MonoBehaviour
 
     void Awake()
     {
+        Time.timeScale = 0;
         instance = this;
     }
 
     void Start()
     {
-        GenerateGrid();
+        StartCoroutine(GenerateGrid());
     }
 
-    public void GenerateGrid()
+    IEnumerator GenerateGrid()
     {
         GlobalVariable.instance.grid = new Tile[width, height];
         GlobalVariable.instance.isOccuppied = new bool[width, height];
@@ -32,6 +33,7 @@ public class GridManager : MonoBehaviour
                 spawwnedTile.Init(isOffset);
                 GlobalVariable.instance.isOccuppied[x, y] = false;
                 GlobalVariable.instance.grid[x, y] = spawwnedTile;
+                yield return new WaitForSeconds(0.05f);
             }
         }
     }

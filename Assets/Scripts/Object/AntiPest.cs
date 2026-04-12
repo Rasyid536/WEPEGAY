@@ -17,6 +17,11 @@ public class AntiPest : MonoBehaviour
 
     void Update()
     {
+        if (transform.childCount == 0)
+        {
+            Destroy(gameObject);
+        }
+        
         time += Time.deltaTime;
         float t = time/duration;
         renderer.material.color = Color.Lerp(Color.white, Color.black, t);

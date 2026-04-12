@@ -65,7 +65,14 @@ public class ControllerEnd : MonoBehaviour
             {
                 if (obj.transform.position == pos && !obj.CompareTag("Pest"))
                 {
-                    Destroy(obj);
+                    if (transform.parent != null)
+                    {
+                        Destroy(obj.transform.parent.gameObject);
+                    }
+                    else
+                    {
+                        Destroy(obj); // fallback
+                    }
                     GlobalVariable.instance.isOccuppied[x, y] = false;
                     return;
                 }
@@ -88,6 +95,8 @@ public class ControllerEnd : MonoBehaviour
             Debug.Log("Indeks diluar array atau tempat occupied");
         }
     }
+
+    
     
     void Update()
     {

@@ -10,13 +10,30 @@ public class GlobalEvent : MonoBehaviour
 
     void Start()
     {
-        InvokeRepeating(nameof(InstantiatePest), Random.Range(5, 8), Random.Range(5, 8));
+        InvokeRepeating(nameof(InstantiatePest), Random.Range(2, 3), Random.Range(2, 3));
     }
 
     void InstantiatePest()
     {
-        Instantiate(Pest, GlobalVariable.instance.grid[Random.Range(1, 8), 
-        Random.Range(1, 8)].transform.position, Quaternion.identity);
+        GameObject[] pests = GameObject.FindGameObjectsWithTag("Pest");
+
+        int x = Random.Range(1, 8);
+        int y = Random.Range(1, 8);
+
+        bool isPest = false;
+
+        foreach (GameObject obj in pests)
+        {
+            if (Vector2.Distance(obj.transform.position, new Vector2(x, y)) < 0.1f)
+            {
+                isPest = true;
+                break;
+            }
+        }
+        if (!isPest)
+        {
+            Instantiate(Pest, GlobalVariable.instance.grid[x, y].transform.position, Quaternion.identity);
+        }
     }
 
     void Update()
