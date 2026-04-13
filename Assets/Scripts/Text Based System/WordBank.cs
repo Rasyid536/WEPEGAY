@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class WordBankData
 {
-    static List<string> subject = new()
+    public static List<string> subject = new()
     {
         "hamster",
         "marmot",
@@ -11,7 +11,7 @@ public static class WordBankData
         "squirrel",
         "pig"
     };
-    static List<string> verb = new()
+    public static List<string> verb = new()
     {
         "jumped",
         "walked",
@@ -21,7 +21,7 @@ public static class WordBankData
         "run",
         "fly"
     };
-    static List<string> preposition = new()
+    public static List<string> preposition = new()
     {
         "into", 
         "from",
@@ -29,7 +29,7 @@ public static class WordBankData
         "towards",
         "away from"
     };
-    static List<string> posessive = new()
+    public static List<string> possessive = new()
     {
         "their",
         "our",
@@ -38,7 +38,7 @@ public static class WordBankData
         "nobody",
         "someone"
     };
-    static List<string> onject = new()
+    public static List<string> objects = new()
     {
         "home",
         "ground",
@@ -55,7 +55,20 @@ public class WordBank : MonoBehaviour
     void Awake()
     {
         instance = this;
+    }
 
-        
-    } 
+    public static string GenerateSentence()
+    {
+        return $"{GetRandom(WordBankData.subject)} {GetRandom(WordBankData.verb)} {GetRandom(WordBankData.preposition)} {GetRandom(WordBankData.possessive)} {GetRandom(WordBankData.objects)}";
+    }
+
+    static string GetRandom(List<string> list)
+    {
+        return list[Random.Range(0, list.Count)];
+    }
+
+    void Update()
+    {
+        //Debug.Log(GenerateSentence());
+    }
 }

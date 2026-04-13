@@ -26,7 +26,7 @@ public class Controller : MonoBehaviour
     public static WindowsCommand<int, int> ERASE_AT;
     public static WindowsCommand<int, int> PLACEA_PESTKILL;
     public static WindowsCommand<int> ADD_MONEY;
-    public static WindowsCommand HELP, START, EXIT;
+    public static WindowsCommand HELP, START, EXIT, ADJUSTER;
     // declare command list variable
 
 
@@ -37,10 +37,20 @@ public class Controller : MonoBehaviour
     [SerializeField]private float yPadding, xPadding, width; // gui margin
     GUIStyle style; string input = "";
     bool callHandlerUnbug = true; bool forceCursorToEnd = false;
-    string suggestionText;
+    string suggestionText; [SerializeField] GameObject uiAdjust;
+    float caretBlink; Texture2D caretTex;
 
     void Awake()
     {
+
+        ADJUSTER = new WindowsCommand(
+            "adjusteron",
+            "adjust the visual",
+            "adjsuteron(no more arg)",
+            () =>
+            {
+                uiAdjust.SetActive(true);
+            });
 
         ADD_MONEY = new WindowsCommand<int>( // Developer test feature, don't use for cheating dawg >:O
             "add_money",
@@ -156,13 +166,17 @@ public class Controller : MonoBehaviour
             ADD_MONEY,
             HELP,
             START,
-            EXIT
+            EXIT,
+            ADJUSTER
         };
     }
 
     void Start()
     {
         AddTextLogs("type<color=yellow> 'help'</color> for list of command, and type<color=yellow> 'start' </color>to start the game");
+        caretTex = new Texture2D(1, 1);
+        caretTex.SetPixel(0, 0, new Color(1f, 0.5f, 0f)); // oranye
+        caretTex.Apply();
     }
 
     void Update()
@@ -187,11 +201,11 @@ public class Controller : MonoBehaviour
 
             if (properties[0] == commandBase.commandID)
             {
+
                 if (commandList[i] is WindowsCommand simpleCommand) // handle only command
                 {
                     simpleCommand.Invoke();
                 }
-                
                 else if (commandList[i] is WindowsCommand<int> intCommand) // handle one integer input, ex : command value
                 {
                     if (properties.Length < 2)
@@ -208,7 +222,6 @@ public class Controller : MonoBehaviour
 
                     intCommand.Invoke(value);
                 }
-
                 else if (commandList [i] is WindowsCommand<int, int> intPairCommand) // handle two integer input, ex : command val1 val2
                 {
                     if (properties.Length < 3)
@@ -260,7 +273,7 @@ public class Controller : MonoBehaviour
         if (style == null)
         {
             // UBAH: Pakai textField agar behavior ketikannya (kursor, spasi) normal
-            style = new GUIStyle(GUI.skin.label); 
+            style = new GUIStyle(GUI.skin.label); // style? what for? idk honestly
             style.fontSize = 20;
 
             style.normal.background = Texture2D.blackTexture;
@@ -278,8 +291,7 @@ public class Controller : MonoBehaviour
             textLogsStyle = new GUIStyle(GUI.skin.label);
             textLogsStyle.fontSize = 20;
             textLogsStyle.normal.textColor = Color.white;
-            
-            // TAMBAH: Baris ini wajib ada agar tag <color> bisa bekerja
+        
             textLogsStyle.richText = true; 
         }
 
@@ -291,7 +303,6 @@ public class Controller : MonoBehaviour
 
         if (Event.current.type == EventType.KeyDown)
         {
-            // 1. Cek Enter
             if (Event.current.keyCode == KeyCode.Return)
             {
                 if (!string.IsNullOrEmpty(input)) 
@@ -314,10 +325,7 @@ public class Controller : MonoBehaviour
             }
         }
 
-
-
-        // TAMBAH: Ini adalah "Layer Bawah". Kita memanggil fungsi GetHighlightedInput() 
-        // untuk menggambar teks warna-warni persis di kordinat kotak input.
+        // rect GUI label
         GUI.Label(new Rect(xPos, inputY, areaWidth, 30), GetHighlightedInput(), textLogsStyle);
 
         // TETAP: Ini adalah "Layer Atas". TextField ini teksnya transparan (karena Langkah 2),
@@ -338,6 +346,37 @@ public class Controller : MonoBehaviour
         );
 
         GUI.FocusControl("ConsoleInput");
+
+        TextEditor textEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+        caretBlink += Time.deltaTime;
+        bool showCaret = (int)(caretBlink * 2) % 2 == 0;
+        Vector2 cursorPos = textEditor.graphicalCursorPos;
+
+        
+        if (showCaret)
+        {
+            Rect caretRect = new Rect(
+                cursorPos.x - 1,
+                cursorPos.y - 21,
+                5, // 👈 ketebalan (ubah di sini)
+                23
+            );
+
+            GUI.DrawTexture(caretRect, caretTex);
+        }
+        else
+        {
+            Rect caretHideRect = new Rect(
+                cursorPos.x - 1,
+                cursorPos.y - 21,
+                23, // 👈 ketebalan (ubah di sini)
+                23
+            );
+
+            GUI.DrawTexture(caretHideRect, Texture2D.blackTexture);
+        }
+        
+
 
         if (forceCursorToEnd && Event.current.type == EventType.Repaint)
         {
@@ -374,17 +413,15 @@ public class Controller : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(suggestionText))
             {
-                // 1. Tambahkan teks bayangan ke input asli
                 input += suggestionText + " "; 
                 
-                // 2. Ambil state TextEditor dari TextField yang sedang aktif
-                TextEditor te = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+                TextEditor editorText = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
                 
-                if (te != null)
+                if (editorText != null)
                 {
                     // 3. Paksa kursor lompat ke karakter paling terakhir
-                    te.cursorIndex = input.Length;
-                    te.selectIndex = input.Length; // Pastikan tidak ada teks yang ter-blok
+                    editorText.cursorIndex = input.Length;
+                    editorText.selectIndex = input.Length; // Pastikan tidak ada teks yang ter-blok
                 }
                 
                 // 4. Konsumsi event agar panah kanan tidak memicu hal lain
@@ -395,7 +432,6 @@ public class Controller : MonoBehaviour
 
     string GetHighlightedInput()
     {
-        // 1. Reset suggestion text setiap kali fungsi dipanggil
         suggestionText = ""; 
 
         if (string.IsNullOrEmpty(input)) return "";
@@ -405,8 +441,7 @@ public class Controller : MonoBehaviour
 
         string commandPart = properties[0];
         bool isValidCommand = false;
-        
-        // 2. LOGIKA AUTOCOMPLETE: Mencari command yang cocok dengan ketikan awal
+    
         if (properties.Length == 1) // Hanya cari suggestion kalau user baru ngetik 1 kata
         {
             foreach (var cmd in commandList)
@@ -439,11 +474,9 @@ public class Controller : MonoBehaviour
             }
         }
 
-        // 3. Pewarnaan Command
         if (isValidCommand) result += $"<color=#F79A19>{commandPart}</color>";
         else result += $"<color=#FF5555>{commandPart}</color>";
 
-        // 4. Pewarnaan Argumen (Tidak berubah)
         for (int i = 1; i < properties.Length; i++)
         {
             if (properties[i] == "") { result += " "; continue; }
@@ -456,14 +489,11 @@ public class Controller : MonoBehaviour
 
         if (input.EndsWith(" ")) result += " ";
 
-        // 5. GABUNGKAN SUGGESTION DENGAN TEKS HIGHLIGHT
-        // Tambahkan teks suggestion di akhir dengan warna abu-abu (opacity rendah)
         if (!string.IsNullOrEmpty(suggestionText))
         {
-            // Hex #808080 adalah warna abu-abu
+            // Hex #808080 gray
             result += $"<color=#808080>{suggestionText}</color>"; 
         }
-
         return result;
     }
 }

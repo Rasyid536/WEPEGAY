@@ -6,6 +6,7 @@ public class GlobalEvent : MonoBehaviour
 {
     [SerializeField] GameObject Pest;
     [SerializeField] TextMeshProUGUI money;
+    [SerializeField] GameObject AdjsterUI;
 
 
     void Start()
@@ -38,7 +39,36 @@ public class GlobalEvent : MonoBehaviour
 
     void Update()
     {
+        /*
         string moneys = "" + GlobalData.money;
         money.text = moneys;
+
+        if (Input.GetButtonDown("i"))
+        {
+            up();
+        }
+        if (Input.GetButtonDown("j"))
+        {
+            left();
+        }
+        if (Input.GetButtonDown("k"))
+        {
+            down();
+        }
+        if (Input.GetButtonDown("l"))
+        {
+            right();
+        }
+*/
     }
+
+    public void up(){transform.position += new Vector3(0, 1, 0);}
+    public void down(){transform.position += new Vector3(0, -1, 0);}
+    public void right(){transform.position += new Vector3(-1, 0, 0);}
+    public void left(){transform.position += new Vector3(1, 0, 0);}
+
+    public void zoomout(){transform.position += new Vector3(0, 0, -1);} 
+    public void zoomin(){transform.position += new Vector3(0, 0, 1);}
+
+    public void quit(){AdjsterUI.SetActive(false);}
 }
