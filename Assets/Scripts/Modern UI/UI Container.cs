@@ -1,12 +1,16 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI; // Wajib ditambahkan untuk memanggil UI TextMeshPro
+using UnityEngine.UI;
 
 public class UIContainer : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI text; // Slot untuk memasukkan UI Text
+    [SerializeField] private TextMeshProUGUI textUtama; // Slot untuk tulisan panjang
+    [SerializeField] private TextMeshProUGUI textAngkaTombol; // Slot untuk teks angka di dalam tombol
+    [SerializeField] private RectTransform timeScaleButton; // Slot untuk tombol merah
+    
     private float deltaTime = 0.0f;
-    private string[] hex = new string[5];
+    private string[] hex = new string[5]; 
+
     void Start()
     {
         hex[1] = "white";
@@ -26,6 +30,18 @@ public class UIContainer : MonoBehaviour
         else
             hex[1] = "green";
 
-        text.text = $"FPS: <color={hex[1]}> {roundedFps} </color> || money: {GlobalData.money} || time scale: {Time.timeScale}";
+        textUtama.text = $"FPS: <color={hex[1]}> {roundedFps} </color> || money: {GlobalData.money} || time scale: ";
+        textAngkaTombol.text = Time.timeScale.ToString();
+
+        textUtama.ForceMeshUpdate(); 
+
+        float textEndPosition = textUtama.preferredWidth;
+
+        timeScaleButton.anchoredPosition = new Vector2(textEndPosition, timeScaleButton.anchoredPosition.y);
+    }
+
+    public void TimeScaling()
+    {
+        Time.timeScale = 1;
     }
 }
