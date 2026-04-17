@@ -32,13 +32,15 @@ public class Controller : MonoBehaviour
 
     public List<object> commandList;
     private List<string> terminalLogs;
+    private string lastInput = "";
     [SerializeField] private int maxLogs;
     GUIStyle textLogsStyle;
     [SerializeField]private float yPadding, xPadding, width; // gui margin
     GUIStyle style; string input = "";
-    bool callHandlerUnbug = true; bool forceCursorToEnd = false;
+    bool forceCursorToEnd = false;
     string suggestionText; [SerializeField] GameObject uiAdjust;
     float caretBlink; Texture2D caretTex;
+    Tile lastHighlightedTile = null;
 
     void Awake()
     {
@@ -174,9 +176,6 @@ public class Controller : MonoBehaviour
     void Start()
     {
         AddTextLogs("type<color=yellow> 'help'</color> for list of command, and type<color=yellow> 'start' </color>to start the game");
-        caretTex = new Texture2D(1, 1);
-        caretTex.SetPixel(0, 0, new Color(1f, 0.5f, 0f)); // oranye
-        caretTex.Apply();
     }
 
     void Update()
@@ -184,8 +183,9 @@ public class Controller : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return))
         {
             HandleInput();
-            callHandlerUnbug = false;
         }
+
+        
     }
 
     // input handler function
@@ -247,6 +247,11 @@ public class Controller : MonoBehaviour
             }
         }
         input = "";
+        if (lastHighlightedTile != null)
+        {
+            lastHighlightedTile.unHighLight();
+            lastHighlightedTile = null;
+        }
 
     }
 
@@ -347,35 +352,38 @@ public class Controller : MonoBehaviour
 
         GUI.FocusControl("ConsoleInput");
 
+        if (input != lastInput) 
+        {
+            CheckRealTimeInput(); // Panggil fungsi pengecek angka
+            lastInput = input;    // Simpan ketikan terakhir
+        }
+
         TextEditor textEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
         caretBlink += Time.deltaTime;
         bool showCaret = (int)(caretBlink * 2) % 2 == 0;
         Vector2 cursorPos = textEditor.graphicalCursorPos;
-
         
-        if (showCaret)
-        {
-            Rect caretRect = new Rect(
+        Rect caretRect = new Rect(
                 cursorPos.x - 1,
-                cursorPos.y - 21,
-                5, // 👈 ketebalan (ubah di sini)
-                23
+                cursorPos.y - 22,
+                5, // caret thickness
+                24
             );
-
+        
+        if (!showCaret)
+        {
+            caretTex = new Texture2D(1, 1);
+            caretTex.SetPixel(0, 0, new Color(0f, 0f, 0f)); // orange
+            caretTex.Apply();
             GUI.DrawTexture(caretRect, caretTex);
         }
         else
         {
-            Rect caretHideRect = new Rect(
-                cursorPos.x - 1,
-                cursorPos.y - 21,
-                23, // 👈 ketebalan (ubah di sini)
-                23
-            );
-
-            GUI.DrawTexture(caretHideRect, Texture2D.blackTexture);
+            caretTex = new Texture2D(1, 1);
+            caretTex.SetPixel(0, 0, new Color(1f, 0.5f, 0f)); // black
+            caretTex.Apply();
+            GUI.DrawTexture(caretRect, caretTex);
         }
-        
 
 
         if (forceCursorToEnd && Event.current.type == EventType.Repaint)
@@ -383,7 +391,7 @@ public class Controller : MonoBehaviour
             TextEditor te = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
             if (te != null)
             {
-                te.cursorIndex = input.Length;  // Paksa kepala kursor ke ujung
+                te.cursorIndex = input.Length;  // force cursor to end of the text
                 te.selectIndex = input.Length;  // Paksa ekor kursor ke ujung (lepas blok)
             }
             forceCursorToEnd = false; // Matikan bendera setelah berhasil
@@ -408,7 +416,7 @@ public class Controller : MonoBehaviour
             }
         }
         
-        // TAMBAH: Setup Autocomplete (Right Arrow)
+        // autocomplete system
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.RightArrow)
         {
             if (!string.IsNullOrEmpty(suggestionText))
@@ -419,15 +427,14 @@ public class Controller : MonoBehaviour
                 
                 if (editorText != null)
                 {
-                    // 3. Paksa kursor lompat ke karakter paling terakhir
                     editorText.cursorIndex = input.Length;
                     editorText.selectIndex = input.Length; // Pastikan tidak ada teks yang ter-blok
                 }
-                
-                // 4. Konsumsi event agar panah kanan tidak memicu hal lain
+
                 Event.current.Use(); 
             }
         }
+
     }
 
     string GetHighlightedInput()
@@ -473,18 +480,24 @@ public class Controller : MonoBehaviour
                 }
             }
         }
-
+        
+        // #F79A19
         if (isValidCommand) result += $"<color=#F79A19>{commandPart}</color>";
+        // #FF5555
         else result += $"<color=#FF5555>{commandPart}</color>";
 
         for (int i = 1; i < properties.Length; i++)
         {
             if (properties[i] == "") { result += " "; continue; }
-
-            if (int.TryParse(properties[i], out _))
-                result += $" <color=#ADD8E6>{properties[i]}</color>";
-            else
-                result += $" <color=#FF5555>{properties[i]}</color>";
+            
+            if(i <= 2)
+            {
+                if (int.TryParse(properties[i], out int num))
+                    if(num <= 7) // #ADD8E6
+                        result += $" <color=#ADD8E6>{properties[i]}</color>"; // num color
+                else // #FF5555
+                    result += $" <color=#FF5555>{properties[i]}</color>";  // error color
+            }  
         }
 
         if (input.EndsWith(" ")) result += " ";
@@ -495,5 +508,52 @@ public class Controller : MonoBehaviour
             result += $"<color=#808080>{suggestionText}</color>"; 
         }
         return result;
+    }
+
+
+    void CheckRealTimeInput()
+    {
+        string[] properties = input.Split(' ');
+
+        if (properties.Length >= 3 && properties[0] == "plant_atxy" && 
+            int.TryParse(properties[1], out int x) && int.TryParse(properties[2], out int y))
+        {
+            // Cek apakah angka x dan y di dalam batas map (0 sampai 7)
+            if (x >= 0 && x < 8 && y >= 0 && y < 8)
+            {
+                Vector2Int targetPos = new Vector2Int(x, y);
+
+                if (Tile.AllTiles.ContainsKey(targetPos))
+                {
+                    Tile targetTile = Tile.AllTiles[targetPos];
+
+                    if (lastHighlightedTile != null && lastHighlightedTile != targetTile)
+                    {
+                        lastHighlightedTile.unHighLight(); 
+                    }
+
+                    targetTile.highLight();
+                    lastHighlightedTile = targetTile; 
+                }
+            }
+            else
+            {
+                // Jika angka 8 atau lebih, matikan highlight!
+                if (lastHighlightedTile != null)
+                {
+                    lastHighlightedTile.unHighLight();
+                    lastHighlightedTile = null;
+                }
+            }
+        }
+        else 
+        {
+            // Jika format salah atau teks dihapus (backspace)
+            if (lastHighlightedTile != null)
+            {
+                lastHighlightedTile.unHighLight();
+                lastHighlightedTile = null;
+            }
+        }
     }
 }

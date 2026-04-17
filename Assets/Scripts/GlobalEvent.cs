@@ -12,6 +12,7 @@ public class GlobalEvent : MonoBehaviour
     void Start()
     {
         InvokeRepeating(nameof(InstantiatePest), Random.Range(2, 3), Random.Range(2, 3));
+        // test nvim // Instantiate(this.GameObject, new Vector3(1, 2, 0), Quaternion.identity);
     }
 
     void InstantiatePest()

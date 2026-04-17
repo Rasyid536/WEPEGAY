@@ -103,6 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _baseColor: {r: 0.0890149, g: 0.86415094, b: 0, a: 1}
   _offsetColor: {r: 0.34173703, g: 1, b: 0.33018857, a: 1}
+  highLightedColor: {r: 1, g: 0.9583706, b: 0.76037735, a: 1}
   _renderer: {fileID: 950982528057895014}
 --- !u!61 &8069191629321351759
 BoxCollider2D:
@@ -142,7 +143,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.26, y: 2.18}
+    oldSize: {x: 1.0511628, y: 1.0139534}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

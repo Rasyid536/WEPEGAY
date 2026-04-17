@@ -69,6 +69,6 @@ public class WordBank : MonoBehaviour
 
     void Update()
     {
-        //Debug.Log(GenerateSentence());
+        // Debug.Log(GenerateSentence());
     }
 }
