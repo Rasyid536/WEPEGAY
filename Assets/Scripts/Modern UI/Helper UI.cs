@@ -6,6 +6,7 @@ public class HelperUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     private RectTransform rectTransform;
     private Canvas canvas;
     private Vector2 offset;
+    [SerializeField] private GameObject visualizer;
 
     void Awake()
     {
@@ -45,4 +46,20 @@ public class HelperUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
     public void OnEndDrag(PointerEventData eventData)
     {}
+
+    void Update()
+    {
+    }
+
+    public void Visualise()
+    {
+        if(visualizer.activeInHierarchy)
+        {
+            visualizer.SetActive(false);
+        }
+        else
+        {
+            visualizer.SetActive(true);
+        }
+    }
 }

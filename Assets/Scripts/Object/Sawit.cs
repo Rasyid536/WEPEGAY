@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 public class Sawit : MonoBehaviour
 {
     private SpriteRenderer renderer;
-    [SerializeField]private Sprite sprite;
+    [SerializeField] private Sprite sprite;
     float time = 0; float duration = 10f;
     private float health;
     private Coroutine colorRoutine;
@@ -15,6 +15,7 @@ public class Sawit : MonoBehaviour
 
     void Awake()
     {
+        GlobalVariable.palmTreeAmount += 1;
         renderer = this.gameObject.GetComponent<SpriteRenderer>();
         GlobalData.money -= 1;
     }
@@ -36,6 +37,8 @@ public class Sawit : MonoBehaviour
         {
             Debug.Log("Belum panen tapi di harvest");
         }
+
+        GlobalVariable.palmTreeAmount -= 1;
     }
 
 

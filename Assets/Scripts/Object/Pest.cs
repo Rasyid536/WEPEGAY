@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class Pest : MonoBehaviour
 {
+
+    void Start()
+    {
+        GlobalVariable.pestAmount += 1;
+    }
     void OnTriggerEnter2D(Collider2D collider)
     {
         if(collider.CompareTag("AntiPest"))
@@ -23,6 +28,6 @@ public class Pest : MonoBehaviour
         }
     }
 
-
+    void OnDestroy() {GlobalVariable.pestAmount -= 1;}
 
 }

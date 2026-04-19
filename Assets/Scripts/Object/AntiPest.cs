@@ -13,6 +13,7 @@ public class AntiPest : MonoBehaviour
         renderer = this.GetComponent<Renderer>();
         arrayY = Mathf.RoundToInt(this.transform.position.y);
         arrayX = Mathf.RoundToInt(this.transform.position.x);
+        GlobalVariable.antiPestAmount += 1;
     }
 
     void Update()
@@ -28,5 +29,6 @@ public class AntiPest : MonoBehaviour
         if(t > 1) Destroy(this.gameObject);
     }
 
-    void OnDestroy() { GlobalVariable.instance.isOccuppied[arrayX, arrayY] = false; }
+    void OnDestroy() { GlobalVariable.instance.isOccuppied[arrayX, arrayY] = false; 
+    GlobalVariable.antiPestAmount -= 1; }
 }

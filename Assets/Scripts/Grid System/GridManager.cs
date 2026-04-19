@@ -5,17 +5,26 @@ public class GridManager : MonoBehaviour
 {
     public int width, height;
     [SerializeField] private Tile _tilePrefab;
-    public static GridManager instance;
+    public static GridManager instance; public bool isGridGenerated;
 
     void Awake()
     {
-        Time.timeScale = 0;
         instance = this;
     }
 
     void Start()
     {
-        StartCoroutine(GenerateGrid());
+        isGridGenerated = false;
+        //StartCoroutine(GenerateGrid());
+    }
+
+    void Update()
+    {
+        if(GlobalVariable.gameState && !isGridGenerated)
+        {
+            StartCoroutine(GenerateGrid());
+            isGridGenerated = true;
+        }
     }
 
     IEnumerator GenerateGrid()
@@ -58,14 +67,14 @@ public class GridManager : MonoBehaviour
         float offset = 0f;
         float outside = 1f;
 
-        // Label X (bawah grid)
+        // Label X (below grid)
         for (int x = 0; x < width; x++)
         {
-            Vector3 worldPos = new Vector3(x, -outside, 0);
+            Vector3 worldPos = new Vector3(x, - outside, 0);
             DrawLabel(worldPos, x.ToString());
         }
 
-        // Label Y (kiri grid)
+        // Label Y (left grid)
         for (int y = 0; y < height; y++)
         {
             Vector3 worldPos = new Vector3(-outside, y + offset, 0);

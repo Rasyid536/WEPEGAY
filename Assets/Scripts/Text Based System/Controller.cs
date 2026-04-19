@@ -84,7 +84,7 @@ public class Controller : MonoBehaviour
             "start(no more arg)",
             () =>
             {
-                Time.timeScale = 1;
+                GlobalVariable.gameState = true;
             });
         
         EXIT = new WindowsCommand(
@@ -266,9 +266,10 @@ public class Controller : MonoBehaviour
         message = message.Replace("help :", "<color=#8CC7C4>help :</color>");
         message = message.Replace("'", "<color=#F79A19>'</color>");
         terminalLogs.Insert(0, message);
+
         if (terminalLogs.Count >= maxLogs)
         {
-            terminalLogs.RemoveAt(0);
+            terminalLogs.RemoveAt(terminalLogs.Count - 1);
         }
     }
 
@@ -343,14 +344,13 @@ public class Controller : MonoBehaviour
         );
 
         GUI.SetNextControlName("ConsoleInput");
-
         input = GUI.TextField(
             new Rect(xPos, inputY, areaWidth, 30),
             input,
             style
         );
 
-        GUI.FocusControl("ConsoleInput");
+        //GUI.FocusControl("ConsoleInput");
 
         if (input != lastInput) 
         {
@@ -515,8 +515,7 @@ public class Controller : MonoBehaviour
     {
         string[] properties = input.Split(' ');
 
-        if (properties.Length >= 3 && properties[0] == "plant_atxy" && 
-            int.TryParse(properties[1], out int x) && int.TryParse(properties[2], out int y))
+        if (properties.Length >= 3 && int.TryParse(properties[1], out int x) && int.TryParse(properties[2], out int y))
         {
             // Cek apakah angka x dan y di dalam batas map (0 sampai 7)
             if (x >= 0 && x < 8 && y >= 0 && y < 8)

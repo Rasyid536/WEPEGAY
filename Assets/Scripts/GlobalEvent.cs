@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +7,7 @@ public class GlobalEvent : MonoBehaviour
 {
     [SerializeField] GameObject Pest;
     [SerializeField] TextMeshProUGUI money;
-    [SerializeField] GameObject AdjsterUI;
+    [SerializeField] private GameObject HelpUI;
 
 
     void Start()
@@ -32,7 +33,7 @@ public class GlobalEvent : MonoBehaviour
                 break;
             }
         }
-        if (!isPest)
+        if (!isPest && GridManager.instance.isGridGenerated && GlobalVariable.gameState)
         {
             Instantiate(Pest, GlobalVariable.instance.grid[x, y].transform.position, Quaternion.identity);
         }
@@ -40,36 +41,35 @@ public class GlobalEvent : MonoBehaviour
 
     void Update()
     {
-        /*
-        string moneys = "" + GlobalData.money;
-        money.text = moneys;
 
-        if (Input.GetButtonDown("i"))
+        if (Input.GetKeyDown("i"))
         {
             up();
         }
-        if (Input.GetButtonDown("j"))
+        if (Input.GetKeyDown("j"))
         {
             left();
         }
-        if (Input.GetButtonDown("k"))
+        if (Input.GetKeyDown("k"))
         {
             down();
         }
-        if (Input.GetButtonDown("l"))
+        if (Input.GetKeyDown("l"))
         {
             right();
         }
-*/
+
+        if(!GlobalVariable.gameState)
+            HelpUI.SetActive(true);
+        else
+            HelpUI.SetActive(false);
     }
 
-    public void up(){transform.position += new Vector3(0, 1, 0);}
-    public void down(){transform.position += new Vector3(0, -1, 0);}
+    public void up(){transform.position += new Vector3(0, -1, 0);}
+    public void down(){transform.position += new Vector3(0, 1, 0);}
     public void right(){transform.position += new Vector3(-1, 0, 0);}
     public void left(){transform.position += new Vector3(1, 0, 0);}
 
     public void zoomout(){transform.position += new Vector3(0, 0, -1);} 
     public void zoomin(){transform.position += new Vector3(0, 0, 1);}
-
-    public void quit(){AdjsterUI.SetActive(false);}
 }

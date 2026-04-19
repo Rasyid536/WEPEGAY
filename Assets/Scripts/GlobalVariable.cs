@@ -6,6 +6,8 @@ public class GlobalVariable : MonoBehaviour
     public static GlobalVariable instance;
     public Tile[, ] grid;
     public bool[, ] isOccuppied;
+    public static bool gameState;
+    public static int pestAmount, palmTreeAmount, antiPestAmount;
 
     void Awake()
     {
