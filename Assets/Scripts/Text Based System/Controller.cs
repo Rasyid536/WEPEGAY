@@ -1,25 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System;
-
-// ============================================= //
-//        This is the script where the game      //
-//      command prompt system is processed       //
-//      and controlled.                          //
-// ============================================= //
-
-//======== color picker ========//
-// #ffff      pick color on this one, dont modify the others below
-// #2FA084
-// #ADD8E6
-// #239BA7
-// #808080
 
 public class Controller : MonoBehaviour
 {
-
-    // declare command list variable 
     public static WindowsCommand SEND_DEBUG;
     public static WindowsCommand<int> SET_DEBUG;
     public static WindowsCommand<int, int> PLANT_AT;
@@ -27,40 +11,38 @@ public class Controller : MonoBehaviour
     public static WindowsCommand<int, int> PLACEA_PESTKILL;
     public static WindowsCommand<int> ADD_MONEY;
     public static WindowsCommand HELP, START, EXIT, ADJUSTER;
-    // declare command list variable
-
 
     public List<object> commandList;
     private List<string> terminalLogs;
     private string lastInput = "";
     [SerializeField] private int maxLogs;
     GUIStyle textLogsStyle;
-    [SerializeField]private float yPadding, xPadding, width; // gui margin
-    GUIStyle style; string input = "";
+    [SerializeField] private float yPadding, xPadding, width;
+    GUIStyle style; 
+    string input = "";
     bool forceCursorToEnd = false;
-    string suggestionText; [SerializeField] GameObject uiAdjust;
-    float caretBlink; Texture2D caretTex;
+    string suggestionText; 
+    float caretBlink; 
+    Texture2D caretTex;
     Tile lastHighlightedTile = null;
+    [SerializeField] private GameObject cutScene;
+
+    [SerializeField] private float typingDuration = 5f;
+    private bool isTypingMode = false;
+    private string targetSentence = "";
+    private int typingIndex = 0;
+    private float typingTimer = 0f;
+    private int pendingX, pendingY;
 
     void Awake()
     {
-
-        ADJUSTER = new WindowsCommand(
-            "adjusteron",
-            "adjust the visual",
-            "adjsuteron(no more arg)",
-            () =>
-            {
-                uiAdjust.SetActive(true);
-            });
-
-        ADD_MONEY = new WindowsCommand<int>( // Developer test feature, don't use for cheating dawg >:O
+        ADD_MONEY = new WindowsCommand<int>(
             "add_money",
             "Adding money",
             "add_money <Amount>",
             (x) =>
             {
-                AddTextLogs ($"<color/=green>ad money with value : {x}");
+                AddTextLogs($"<color/=green>ad money with value : {x}");
                 GlobalData.money += x;
             });
 
@@ -70,12 +52,12 @@ public class Controller : MonoBehaviour
             "help",
             () =>
             {
-                AddTextLogs ("help : for cheat type 'add_money <color=#ADD8E6>v</color>', to set money at v much amount");
-                AddTextLogs ("help : for example 'plant_atxy 3 3' will place plant at grid column 3 and grid line 3");
-                AddTextLogs ("help : the x and y is correspond to the coordinate respectively");
-                AddTextLogs ("help : type 'erase_atxy x y' to erase object, you could harvest with this command");
-                AddTextLogs ("help : type 'antipest_atxy x y' to spawn pest killer, pest around this object would destroy");
-                AddTextLogs ("help : type 'plant_atxy x y' to spawn plant you can use to get money ");
+                AddTextLogs("help : for cheat type 'add_money <color=#ADD8E6>v</color>', to set money at v much amount");
+                AddTextLogs("help : for example 'plant_atxy 3 3' will place plant at grid column 3 and grid line 3");
+                AddTextLogs("help : the x and y is correspond to the coordinate respectively");
+                AddTextLogs("help : type 'erase_atxy x y' to erase object, you could harvest with this command");
+                AddTextLogs("help : type 'antipest_atxy x y' to spawn pest killer, pest around this object would destroy");
+                AddTextLogs("help : type 'plant_atxy x y' to spawn plant you can use to get money ");
             });
 
         START = new WindowsCommand(
@@ -86,7 +68,7 @@ public class Controller : MonoBehaviour
             {
                 GlobalVariable.gameState = true;
             });
-        
+
         EXIT = new WindowsCommand(
             "exit",
             "exit the game",
@@ -106,33 +88,45 @@ public class Controller : MonoBehaviour
                 AddTextLogs("<color=orange>debug sent</color>");
             });
 
-
         SET_DEBUG = new WindowsCommand<int>(
-            "set_debug", 
-            "set the value of debug message", 
-            "set_debug<amount>", 
+            "set_debug",
+            "set the value of debug message",
+            "set_debug<amount>",
             (x) =>
             {
                 ControllerEnd.instance.DebugVal(x);
                 AddTextLogs("<color=orange>debug at val </color><color=#239BA7>" + x);
             });
 
-
         PLANT_AT = new WindowsCommand<int, int>(
-            "plant_atxy", 
-            "send you the x and y", 
-            "msgxy_at<value, value>", 
+            "plant_atxy",
+            "send you the x and y",
+            "msgxy_at<value, value>",
             (x, y) =>
             {
-                if(GlobalData.money >= 1)
+                if (GlobalData.money >= 1 && !isTypingMode)
                 {
-                    ControllerEnd.instance.IsOccupiedGrid(x, y);
-                    AddTextLogs($"<color=#2FA084>command received :</color> plant_atxy<color=#239BA7> {x} {y}, retrieving data for {UnityEngine.Random.Range(0.023f, 0.098f)}s");
+                    isTypingMode = true;
+                    targetSentence = WordBank.GenerateSentence();
+                    typingIndex = 0;
+                    typingTimer = typingDuration;
+                    pendingX = x;
+                    pendingY = y;
+                    input = "";
+                    lastInput = "";
+
+                    terminalLogs.Insert(0, "");
+                    terminalLogs.Insert(0, "");
+                    
+                    if (terminalLogs.Count > maxLogs)
+                    {
+                        terminalLogs.RemoveRange(maxLogs, terminalLogs.Count - maxLogs);
+                    }
                 }
             });
 
         ERASE_AT = new WindowsCommand<int, int>(
-            "erase_atxy", 
+            "erase_atxy",
             "erase the object at x and y",
             "place_at<value, value>",
             (x, y) =>
@@ -147,22 +141,21 @@ public class Controller : MonoBehaviour
             "placepestkill_atxy <value, value>",
             (x, y) =>
             {
-                if(GlobalData.money >= 3)
+                if (GlobalData.money >= 3)
                 {
                     ControllerEnd.instance.PlacePestKiller(x, y);
                     GlobalData.money -= 3;
                     AddTextLogs($"<color=#2FA084>command received :</color> antipest_atxy<color=#239BA7> {x} {y}, retrieving data for {UnityEngine.Random.Range(0.023f, 0.098f)}s");
                 }
             });
-        
-        terminalLogs = new List<string>{};
 
+        terminalLogs = new List<string> { };
 
         commandList = new List<object>
         {
             SEND_DEBUG,
             SET_DEBUG,
-            PLANT_AT, 
+            PLANT_AT,
             ERASE_AT,
             PLACEA_PESTKILL,
             ADD_MONEY,
@@ -180,79 +173,116 @@ public class Controller : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (isTypingMode)
         {
-            HandleInput();
-        }
+            typingTimer -= Time.deltaTime;
 
-        
+            terminalLogs[0] = $"<color=green>{targetSentence.Substring(0, typingIndex)}</color><color=red>{targetSentence.Substring(typingIndex)}</color>";
+
+            int timerBars = Mathf.Max(0, Mathf.RoundToInt((typingTimer / typingDuration) * 15f));
+            string barVisual = new string('=', timerBars).PadRight(15, '-');
+            terminalLogs[1] = $"<color=#239BA7>{Mathf.CeilToInt(typingTimer)} #{barVisual}#</color>";
+
+            if (typingTimer <= 0)
+            {
+                isTypingMode = false;
+                GlobalData.money -= 1;
+                input = "";
+                lastInput = "";
+                terminalLogs.RemoveAt(0);
+                terminalLogs.RemoveAt(0);
+                AddTextLogs($"<color=red>typing failed, -1 money. current money: {GlobalData.money}</color>");
+            }
+            else if (input != lastInput)
+            {
+                if (input.Length > typingIndex)
+                {
+                    char typedChar = input[input.Length - 1];
+                    if (typedChar == targetSentence[typingIndex])
+                    {
+                        typingIndex++;
+                        input = targetSentence.Substring(0, typingIndex);
+                    }
+                    else
+                    {
+                        input = targetSentence.Substring(0, typingIndex);
+                    }
+                }
+                else if (input.Length < typingIndex)
+                {
+                    input = targetSentence.Substring(0, typingIndex);
+                }
+
+                lastInput = input;
+                forceCursorToEnd = true;
+
+                if (typingIndex >= targetSentence.Length)
+                {
+                    isTypingMode = false;
+                    terminalLogs.RemoveAt(0);
+                    terminalLogs.RemoveAt(0);
+                    input = "";
+                    lastInput = "";
+                    ControllerEnd.instance.IsOccupiedGrid(pendingX, pendingY);
+                    AddTextLogs($"<color=#2FA084>command received :</color> plant_atxy<color=#239BA7> {pendingX} {pendingY}, retrieving data for {UnityEngine.Random.Range(0.023f, 0.098f)}s");
+                }
+            }
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                HandleInput();
+            }
+        }
     }
 
-    // input handler function
     void HandleInput()
     {
         string[] properties = input.Split(' ');
 
         if (properties.Length == 0) return;
 
-        for(int i = 0; i < commandList.Count; i++)
+        for (int i = 0; i < commandList.Count; i++)
         {
             WindowsCommandBase commandBase = commandList[i] as WindowsCommandBase;
 
             if (properties[0] == commandBase.commandID)
             {
-
-                if (commandList[i] is WindowsCommand simpleCommand) // handle only command
+                if (commandList[i] is WindowsCommand simpleCommand)
                 {
                     simpleCommand.Invoke();
                 }
-                else if (commandList[i] is WindowsCommand<int> intCommand) // handle one integer input, ex : command value
+                else if (commandList[i] is WindowsCommand<int> intCommand)
                 {
-                    if (properties.Length < 2)
-                    {
-                        Debug.Log("Butuh angka!");
-                        return;
-                    }
-
-                    if (!int.TryParse(properties[1], out int value))
-                    {
-                        Debug.Log("Format angka salah!");
-                        return;
-                    }
+                    if (properties.Length < 2) return;
+                    if (!int.TryParse(properties[1], out int value)) return;
 
                     intCommand.Invoke(value);
                 }
-                else if (commandList [i] is WindowsCommand<int, int> intPairCommand) // handle two integer input, ex : command val1 val2
+                else if (commandList[i] is WindowsCommand<int, int> intPairCommand)
                 {
-                    if (properties.Length < 3)
-                    {
-                        Debug.Log("Butuh angka!");
-                        return;
-                    }
+                    if (properties.Length < 3) return;
+                    if (!int.TryParse(properties[1], out int val1) ||
+                        !int.TryParse(properties[2], out int val2)) return;
 
-                    if (!int.TryParse(properties[1], out int val1) || 
-                    !int.TryParse(properties[2], out int val2))
-                    {
-                        Debug.Log("Format angka salah!");
-                        return;
-                    }
                     intPairCommand.Invoke(val1, val2);
                 }
                 break;
             }
 
-            if(i == commandList.Count - 1 && properties[0] != commandBase.commandID)
+            if (i == commandList.Count - 1 && properties[0] != commandBase.commandID)
             {
                 AddTextLogs($"<color=red>no command such : {properties[0]}, u may be refer into something else</color>");
             }
         }
+        
         input = "";
         if (lastHighlightedTile != null)
         {
             lastHighlightedTile.unHighLight();
             lastHighlightedTile = null;
         }
-
     }
 
     void AddTextLogs(string message)
@@ -265,6 +295,7 @@ public class Controller : MonoBehaviour
         message = message.Replace("x y", "<color=#ADD8E6>x y</color>");
         message = message.Replace("help :", "<color=#8CC7C4>help :</color>");
         message = message.Replace("'", "<color=#F79A19>'</color>");
+        
         terminalLogs.Insert(0, message);
 
         if (terminalLogs.Count >= maxLogs)
@@ -273,22 +304,15 @@ public class Controller : MonoBehaviour
         }
     }
 
-    void OnGUI() 
+    void OnGUI()
     {
-        // ================= STYLE =================
         if (style == null)
         {
-            // UBAH: Pakai textField agar behavior ketikannya (kursor, spasi) normal
-            style = new GUIStyle(GUI.skin.label); // style? what for? idk honestly
+            style = new GUIStyle(GUI.skin.label);
             style.fontSize = 20;
-
             style.normal.background = Texture2D.blackTexture;
-            
-            // UBAH: Ini trik transparannya. Angka 0 di akhir adalah Alpha (A).
-            // Ini membuat teks asli yang kita ketik menghilang, tapi kursor tetap ada.
-            style.normal.textColor = new Color(1, 1, 1, 0); 
+            style.normal.textColor = new Color(1, 1, 1, 0);
             style.focused.textColor = new Color(1, 1, 1, 0);
-
             style.border = new RectOffset(0, 0, 0, 0);
         }
 
@@ -297,45 +321,36 @@ public class Controller : MonoBehaviour
             textLogsStyle = new GUIStyle(GUI.skin.label);
             textLogsStyle.fontSize = 20;
             textLogsStyle.normal.textColor = Color.white;
-        
-            textLogsStyle.richText = true; 
+            textLogsStyle.richText = true;
         }
 
         float areaWidth = Screen.width / 2 - width;
         float xPos = Screen.width / 2 + xPadding;
-
-        // ================= INPUT (FIXED DI ATAS) =================
         float inputY = yPadding;
 
         if (Event.current.type == EventType.KeyDown)
         {
-            if (Event.current.keyCode == KeyCode.Return)
+            if (Event.current.keyCode == KeyCode.Return && !isTypingMode)
             {
-                if (!string.IsNullOrEmpty(input)) 
+                if (!string.IsNullOrEmpty(input))
                 {
                     HandleInput();
-                    Event.current.Use(); // Konsumsi event
+                    Event.current.Use();
                 }
             }
-            else if (Event.current.keyCode == KeyCode.RightArrow)
+            else if (Event.current.keyCode == KeyCode.RightArrow && !isTypingMode)
             {
                 if (!string.IsNullOrEmpty(suggestionText))
                 {
-                    input += suggestionText + " "; 
-                    
-                    // UBAH: Cukup nyalakan benderanya, urusan pindah kursor belakangan
-                    forceCursorToEnd = true; 
-                    
-                    Event.current.Use(); 
+                    input += suggestionText + " ";
+                    forceCursorToEnd = true;
+                    Event.current.Use();
                 }
             }
         }
 
-        // rect GUI label
         GUI.Label(new Rect(xPos, inputY, areaWidth, 30), GetHighlightedInput(), textLogsStyle);
 
-        // TETAP: Ini adalah "Layer Atas". TextField ini teksnya transparan (karena Langkah 2),
-        // dia bertugas murni untuk menangkap ketikan keyboard saja.
         GUI.SetNextControlName("ConsoleInput");
         input = GUI.TextField(
             new Rect(xPos, inputY, areaWidth, 30),
@@ -350,55 +365,56 @@ public class Controller : MonoBehaviour
             style
         );
 
-        //GUI.FocusControl("ConsoleInput");
-
-        if (input != lastInput) 
+        if (cutScene != null && cutScene.activeInHierarchy)
         {
-            CheckRealTimeInput(); // Panggil fungsi pengecek angka
-            lastInput = input;    // Simpan ketikan terakhir
+            GUI.FocusControl(null);
+        }
+
+        if (input != lastInput && !isTypingMode)
+        {
+            CheckRealTimeInput();
+            lastInput = input;
         }
 
         TextEditor textEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
         caretBlink += Time.deltaTime;
         bool showCaret = (int)(caretBlink * 2) % 2 == 0;
         Vector2 cursorPos = textEditor.graphicalCursorPos;
-        
+
         Rect caretRect = new Rect(
-                cursorPos.x - 1,
-                cursorPos.y - 22,
-                5, // caret thickness
-                24
-            );
-        
+            cursorPos.x - 1,
+            cursorPos.y - 22,
+            5,
+            24
+        );
+
         if (!showCaret)
         {
             caretTex = new Texture2D(1, 1);
-            caretTex.SetPixel(0, 0, new Color(0f, 0f, 0f)); // orange
+            caretTex.SetPixel(0, 0, new Color(0f, 0f, 0f));
             caretTex.Apply();
             GUI.DrawTexture(caretRect, caretTex);
         }
         else
         {
             caretTex = new Texture2D(1, 1);
-            caretTex.SetPixel(0, 0, new Color(1f, 0.5f, 0f)); // black
+            caretTex.SetPixel(0, 0, new Color(1f, 0.5f, 0f));
             caretTex.Apply();
             GUI.DrawTexture(caretRect, caretTex);
         }
-
 
         if (forceCursorToEnd && Event.current.type == EventType.Repaint)
         {
             TextEditor te = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
             if (te != null)
             {
-                te.cursorIndex = input.Length;  // force cursor to end of the text
-                te.selectIndex = input.Length;  // Paksa ekor kursor ke ujung (lepas blok)
+                te.cursorIndex = input.Length;
+                te.selectIndex = input.Length;
             }
-            forceCursorToEnd = false; // Matikan bendera setelah berhasil
+            forceCursorToEnd = false;
         }
 
-        // ================= LOGS (DI BAWAH INPUT) =================
-        float startY = inputY + 30; // jarak dari input
+        float startY = inputY + 30;
 
         for (int i = 0; i < terminalLogs.Count; i++)
         {
@@ -406,40 +422,39 @@ public class Controller : MonoBehaviour
             GUI.Label(new Rect(xPos, yPos, areaWidth, 30), terminalLogs[i], textLogsStyle);
         }
 
-        // ================= ENTER =================
-        if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
+        if (Event.current.isKey && Event.current.keyCode == KeyCode.Return && !isTypingMode)
         {
-            if (!string.IsNullOrEmpty(input)) 
+            if (!string.IsNullOrEmpty(input))
             {
                 HandleInput();
-                Event.current.Use(); 
+                Event.current.Use();
             }
         }
-        
-        // autocomplete system
-        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.RightArrow)
+
+        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.RightArrow && !isTypingMode)
         {
             if (!string.IsNullOrEmpty(suggestionText))
             {
-                input += suggestionText + " "; 
-                
+                input += suggestionText + " ";
+
                 TextEditor editorText = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-                
+
                 if (editorText != null)
                 {
                     editorText.cursorIndex = input.Length;
-                    editorText.selectIndex = input.Length; // Pastikan tidak ada teks yang ter-blok
+                    editorText.selectIndex = input.Length;
                 }
 
-                Event.current.Use(); 
+                Event.current.Use();
             }
         }
-
     }
 
     string GetHighlightedInput()
     {
-        suggestionText = ""; 
+        if (isTypingMode) return input;
+        
+        suggestionText = "";
 
         if (string.IsNullOrEmpty(input)) return "";
 
@@ -448,28 +463,26 @@ public class Controller : MonoBehaviour
 
         string commandPart = properties[0];
         bool isValidCommand = false;
-    
-        if (properties.Length == 1) // Hanya cari suggestion kalau user baru ngetik 1 kata
+
+        if (properties.Length == 1)
         {
             foreach (var cmd in commandList)
             {
                 string cmdID = (cmd as WindowsCommandBase).commandID;
-                
+
                 if (cmdID == commandPart)
                 {
                     isValidCommand = true;
                     break;
                 }
-                // Jika user ngetik "pla" dan ada command "plant_atxy"
-                else if (cmdID.StartsWith(commandPart)) 
+                else if (cmdID.StartsWith(commandPart))
                 {
-                    // Ambil sisa hurufnya saja (misal: "nt_atxy")
-                    suggestionText = cmdID.Substring(commandPart.Length); 
-                    break; // Ambil suggestion pertama yang ketemu
+                    suggestionText = cmdID.Substring(commandPart.Length);
+                    break;
                 }
             }
         }
-        else // Kalau user sudah spasi dan masukin argumen, asumsikan command (kata pertama) sudah valid (atau setidaknya tidak di-autocomplete lagi)
+        else
         {
             foreach (var cmd in commandList)
             {
@@ -480,36 +493,32 @@ public class Controller : MonoBehaviour
                 }
             }
         }
-        
-        // #F79A19
+
         if (isValidCommand) result += $"<color=#F79A19>{commandPart}</color>";
-        // #FF5555
         else result += $"<color=#FF5555>{commandPart}</color>";
 
         for (int i = 1; i < properties.Length; i++)
         {
             if (properties[i] == "") { result += " "; continue; }
-            
-            if(i <= 2)
+
+            if (i <= 2)
             {
                 if (int.TryParse(properties[i], out int num))
-                    if(num <= 7) // #ADD8E6
-                        result += $" <color=#ADD8E6>{properties[i]}</color>"; // num color
-                else // #FF5555
-                    result += $" <color=#FF5555>{properties[i]}</color>";  // error color
-            }  
+                    if (num <= 7)
+                        result += $" <color=#ADD8E6>{properties[i]}</color>";
+                    else
+                        result += $" <color=#FF5555>{properties[i]}</color>";
+            }
         }
 
         if (input.EndsWith(" ")) result += " ";
 
         if (!string.IsNullOrEmpty(suggestionText))
         {
-            // Hex #808080 gray
-            result += $"<color=#808080>{suggestionText}</color>"; 
+            result += $"<color=#808080>{suggestionText}</color>";
         }
         return result;
     }
-
 
     void CheckRealTimeInput()
     {
@@ -517,7 +526,6 @@ public class Controller : MonoBehaviour
 
         if (properties.Length >= 3 && int.TryParse(properties[1], out int x) && int.TryParse(properties[2], out int y))
         {
-            // Cek apakah angka x dan y di dalam batas map (0 sampai 7)
             if (x >= 0 && x < 8 && y >= 0 && y < 8)
             {
                 Vector2Int targetPos = new Vector2Int(x, y);
@@ -528,16 +536,15 @@ public class Controller : MonoBehaviour
 
                     if (lastHighlightedTile != null && lastHighlightedTile != targetTile)
                     {
-                        lastHighlightedTile.unHighLight(); 
+                        lastHighlightedTile.unHighLight();
                     }
 
                     targetTile.highLight();
-                    lastHighlightedTile = targetTile; 
+                    lastHighlightedTile = targetTile;
                 }
             }
             else
             {
-                // Jika angka 8 atau lebih, matikan highlight!
                 if (lastHighlightedTile != null)
                 {
                     lastHighlightedTile.unHighLight();
@@ -545,9 +552,8 @@ public class Controller : MonoBehaviour
                 }
             }
         }
-        else 
+        else
         {
-            // Jika format salah atau teks dihapus (backspace)
             if (lastHighlightedTile != null)
             {
                 lastHighlightedTile.unHighLight();

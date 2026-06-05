@@ -24,4 +24,5 @@ public static class GlobalData
 {
     public static int money = 10;
     public static int data;
+    public static int plantrow = 0;
 }

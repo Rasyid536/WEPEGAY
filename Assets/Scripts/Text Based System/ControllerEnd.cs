@@ -34,7 +34,10 @@ public class ControllerEnd : MonoBehaviour
         if(x < GlobalVariable.instance.grid.GetLength(0) && y < GlobalVariable.instance.grid.GetLength(1))
         {
             Debug.Log($" Posisi grid ke : {GlobalVariable.instance.grid[x, y].transform.position}, Length of x {GlobalVariable.instance.grid.GetLength(0)}, Length of y {GlobalVariable.instance.grid.GetLength(1)}");
-            Instantiate(testObject, GlobalVariable.instance.grid[x, y].transform.position, quaternion.identity);
+            if(GlobalVariable.instance.grid[x, y] != null)
+            {
+                Instantiate(testObject, GlobalVariable.instance.grid[x, y].transform.position, quaternion.identity);
+            }
             GlobalVariable.instance.isOccuppied[x, y] = true;
         }
         else

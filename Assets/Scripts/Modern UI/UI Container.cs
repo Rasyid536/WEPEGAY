@@ -9,12 +9,9 @@ public class UIContainer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI mainTextLineThird; 
     [SerializeField] private TextMeshProUGUI stateStatus;
     [SerializeField] private RectTransform timeScaleButton;
-    [SerializeField] private GameObject palmSprite, palmSpriteErase, pestSprite, antiPestSprite;
     
     private float deltaTime = 0.0f;
-    private string[] hex = new string[5]; 
-    float spriteBlink = 0;
-
+    private string[] hex = new string[5];
     void Start()
     {
         GlobalVariable.gameState = false;
@@ -22,18 +19,7 @@ public class UIContainer : MonoBehaviour
     }
 
     void Update()
-    {   
-        spriteBlink += Time.deltaTime;
-        bool showSprite = (int)(spriteBlink * 2) % 2 == 0;
-        
-        /////////////////////////////////////////////////
-        palmSprite.SetActive(showSprite? true : false);
-        palmSpriteErase.SetActive(showSprite? true : false);
-        antiPestSprite.SetActive(showSprite? true : false);
-        pestSprite.SetActive(showSprite? true : false);
-        //////////////////////////////////////////////////
-
-
+    {
         deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
 
         float fps = 1.0f / deltaTime;

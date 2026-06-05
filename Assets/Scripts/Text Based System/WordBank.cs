@@ -50,7 +50,7 @@ public static class WordBankData
 
 public class WordBank : MonoBehaviour
 {
-    public static WordBank instance;
+    public WordBank instance;
 
     void Awake()
     {

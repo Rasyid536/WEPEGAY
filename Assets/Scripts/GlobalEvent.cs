@@ -8,12 +8,12 @@ public class GlobalEvent : MonoBehaviour
     [SerializeField] GameObject Pest;
     [SerializeField] TextMeshProUGUI money;
     [SerializeField] private GameObject HelpUI;
-
+    [SerializeField] private GameObject cutsSceneObj;[SerializeField] private bool isStart;
 
     void Start()
     {
+        isStart = true;
         InvokeRepeating(nameof(InstantiatePest), Random.Range(2, 3), Random.Range(2, 3));
-        // test nvim // Instantiate(this.GameObject, new Vector3(1, 2, 0), Quaternion.identity);
     }
 
     void InstantiatePest()
@@ -35,12 +35,27 @@ public class GlobalEvent : MonoBehaviour
         }
         if (!isPest && GridManager.instance.isGridGenerated && GlobalVariable.gameState)
         {
-            Instantiate(Pest, GlobalVariable.instance.grid[x, y].transform.position, Quaternion.identity);
+            if(GlobalVariable.instance.grid[x, y] != null)
+                Instantiate(Pest, GlobalVariable.instance.grid[x, y].transform.position, Quaternion.identity);
         }
     }
 
     void Update()
     {
+        if(GlobalData.plantrow == Random.Range(5, 7) && isStart == true)
+        {
+            cutsSceneObj.SetActive(true);
+            GlobalData.plantrow = 0;
+            isStart = false;
+        }
+        else if(GlobalData.plantrow == Random.Range(10, 15) && isStart == false)
+        {
+            cutsSceneObj.SetActive(true);
+            GlobalData.plantrow = 0;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Z)) cutsSceneObj.SetActive(true);
+
 
         if (Input.GetKeyDown("i"))
         {
@@ -50,6 +65,7 @@ public class GlobalEvent : MonoBehaviour
         {
             left();
         }
+
         if (Input.GetKeyDown("k"))
         {
             down();

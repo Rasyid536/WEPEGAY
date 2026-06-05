@@ -23,9 +23,7 @@ public class VisualizerUI : MonoBehaviour
     void Update()
     {
         if(!helpUI.activeSelf)
-        {
            gameObject.SetActive(false);
-        }
 
         if(!gameObject.activeSelf)
         {

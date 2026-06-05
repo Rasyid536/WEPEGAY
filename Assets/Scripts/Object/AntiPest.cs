@@ -16,6 +16,11 @@ public class AntiPest : MonoBehaviour
         GlobalVariable.antiPestAmount += 1;
     }
 
+    void Start()
+    {
+        AudioManager.instance.PlayAudioClip(AudioManager.instance.antiPestAudio);
+    }
+
     void Update()
     {
         if (transform.childCount == 0)

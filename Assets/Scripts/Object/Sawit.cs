@@ -20,6 +20,13 @@ public class Sawit : MonoBehaviour
         GlobalData.money -= 1;
     }
 
+    void Start()
+    {
+        GlobalData.plantrow += 1;
+        AudioManager.instance.PlayAudioClip(AudioManager.instance.palmTreeAudio);
+        Debug.Log(GlobalData.plantrow);
+    }
+
     void Update()
     {
         time += Time.deltaTime; float t = time/duration;
@@ -67,7 +74,6 @@ public class Sawit : MonoBehaviour
         }
     }
 
-    // Fungsi pembantu untuk transisi warna halus
     IEnumerator ChangeColor(Color targetColor, float duration)
     {
         Color startColor = renderer.material.color;
@@ -78,7 +84,7 @@ public class Sawit : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
             renderer.material.color = Color.Lerp(startColor, targetColor, t);
-            yield return null; // Tunggu frame berikutnya
+            yield return null; 
         }
         
         renderer.material.color = targetColor;

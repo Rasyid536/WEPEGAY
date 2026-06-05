@@ -102,6 +102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f7670dc3918be4897fa630d1f68277, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  snake: {fileID: 21300000, guid: 4f1a1895d91d0b643896819e8cdb7e74, type: 3}
+  rat: {fileID: 21300000, guid: 16fd30ec7dabc084d8af8093bfbd76ec, type: 3}
+  monkey: {fileID: 21300000, guid: 2599dd0a4d909d046a7bc8c566447876, type: 3}
 --- !u!61 &-7753860758888023283
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -139,7 +142,7 @@ BoxCollider2D:
   m_Offset: {x: 0.0044932067, y: -0.008291125}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5810904, y: 0.053140167}
     oldSize: {x: 5.12, y: 5.12}
     newSize: {x: 5.12, y: 5.12}
     adaptiveTilingThreshold: 0.5
